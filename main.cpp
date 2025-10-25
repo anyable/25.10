@@ -10,46 +10,47 @@ u_t max_u() {
 
 u_t add(u_t a, u_t b) {
   if (a > max_u() - b) {
-    return 0;
+    using std::overflow_error;
+    throw 
+      overflow_error("add");
   }
   return a + b;
 }
 
-bool isAddErr(u_t s, u_t a, u_t b) {
-  return !s && (a || b);
+u_t multi(u_t a) {
+  if (a > max_u() / a) {
+    using std::overflow_error;
+    throw 
+      overflow_error("multy");
+  }
+  return a * a;
 }
-
-
 
 bool isPyth(unsigned a, unsigned b, unsigned c){
-  bool t = isAddErr(add(b*b, b*b), b, c);
-  t = t && isAddErr(add(a*a, b*b), a, b);
-  t = t && isAddErr(add(c*c, a*a), c, a);
-  if (!t){
-    return 0;
-  }
-  bool p = (a*a == b*b + c*c);
-  p = p || (b*b == c*c + a*a);
-  p = p || (c*c == a*a + b*b);
+  u_t aa = multi(a);
+  u_t bb = multi(b);
+  u_t cc = multi(c);
+  bool p = (aa == add(bb, cc));
+  p = p || (bb == add(cc, aa));
+  p = p || (cc == add(aa, bb));
   return p; 
 }
-
 int main()
 {
-  u_t a, c, b;
+  u_t a, b, c;
   std::cin >> c >> b;
   size_t count = 0;
+  try{
   while (std::cin >> a){
     u_t Pyth = isPyth(a, b, c) ? 1 : 0;
-    if (isAddErr(add(count, Pyth), count, Pyth)){
-      count += Pyth;
-      c = b;
-      b = a;
-    }
-    
+    count = add(count, Pyth);
+    c = b;
+    b = a;
   }
-
-
+  } catch(...){
+    std::cerr << "error too match\n";
+    return 2;
+  }
   if (std::cin.eof()){
     std::cout << count << "\n";
   }
@@ -57,7 +58,4 @@ int main()
     std::cerr << "error\n";
     return 1; 
   }
-
-
-  
 }
